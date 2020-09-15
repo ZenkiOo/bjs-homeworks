@@ -1,6 +1,4 @@
 "use strict";
-document.body.style.backgroundColor = "#333";
-const c = () => console.log;
 
 function parseCount(num) {
   const number = Number.parseInt(num, 10);
@@ -37,7 +35,6 @@ class Triangle {
     );
   }
 }
-// const tr = new Triangle(6, 5, 2.2);
 
 function getTriangle(a, b, c) {
   const errorMessage = "Ошибка! Треугольник не существует";
