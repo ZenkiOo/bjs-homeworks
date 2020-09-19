@@ -19,9 +19,7 @@ function getCountReliableWeapons(durability) {
 }
 
 function hasReliableWeapons(durability) {
-  return weapons.filter((weapon) => weapon.durability > durability).length > 0
-    ? true
-    : false;
+  return weapons.some((weapon) => weapon.durability > durability);
 }
 
 function getReliableWeaponsNames(durability) {
@@ -31,19 +29,15 @@ function getReliableWeaponsNames(durability) {
 }
 
 function getTotalDamage() {
-  const reducer = (acc, currentValue) => acc + currentValue;
-  return weapons.map((weapon) => weapon.attack).reduce(reducer);
-}
-
-function getValuestCountToSumValues(arr) {
-  const reducer = (acc, currentValue) => acc + currentValue;
-  return arr.reduce(reducer);
+  return weapons.reduce(function (acc, curr) {
+    return acc + curr.attack;
+  }, 0);
 }
 
 function getValuestCountToSumValues(arr, neededSum) {
   const values = [];
   function getReduseArr(array) {
-    const reducer = (acc, currentValue) => acc + currentValue;
+    const reducer = (acc, curr) => acc + curr;
     return array.reduce(reducer);
   }
   if (getReduseArr(arr) > neededSum) {
@@ -55,6 +49,7 @@ function getValuestCountToSumValues(arr, neededSum) {
     return arr.length;
   }
 }
+
 function sleep(milliseconds) {
   let e = new Date().getTime() + milliseconds;
   while (new Date().getTime() <= e) {}
@@ -68,10 +63,10 @@ function sum(...args) {
 }
 
 function compareArrays(arr1, arr2) {
-  function isEqual(element, i) {
-    return element === arr2[i];
-  }
-  return arr1.every(isEqual);
+  return (
+    arr1.length === arr2.length &&
+    arr1.every((element, i) => element === arr2[i])
+  );
 }
 
 class MemorizedFunc {
@@ -81,36 +76,15 @@ class MemorizedFunc {
   }
 }
 
-// function memorize(fn, limit) {
-//   const memory = [];
-//   return function (...args) {
-//     const founded = memory.find((item) => compareArrays(item.args, [...args]));
-//     if (founded) return founded.result;
-//     memory.push(new MemorizedFunc([...args], fn(...args)));
-//     if (memory.length > limit) memory.shift();
-//     return fn(...args);
-//   };
-// }
-// const mSum = memorize(sum, 2);
-
 function memorize(fn, limit) {
-  const memory = [
-    {
-      args: [3, 4],
-      result: 7,
-    },
-    {
-      args: [1, 3],
-      result: 4,
-    },
-  ];
+  const memory = [];
   return function (...args) {
-    const founded = memory.find((item) => compareArrays(item.args, [...args]));
+    const founded = memory.find((item) => compareArrays(item.args, args));
     if (founded) return founded.result;
-    memory.splice(0, memory.length - 1);
-    memory.push({ args: [...args], result: fn(...args) });
+    const result = fn(...args);
+    memory.push(new MemorizedFunc(args, result));
     if (memory.length > limit) memory.shift();
-    return fn(...args);
+    return result;
   };
 }
-const resultFunction = memorize((a, b) => a + b, 2);
+const mSum = memorize(sum, 2);
